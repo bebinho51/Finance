@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finances Ahmed</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F5F5F0;color:#2C2C2A;padding:16px;max-width:1000px;margin:0 auto;font-size:14px;line-height:1.5}
+h1{font-size:22px;font-weight:500;margin-bottom:4px}
+.sub{font-size:13px;color:#888780;margin-bottom:20px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+@media(max-width:700px){.grid4{grid-template-columns:repeat(2,1fr)}.grid3{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+.metric{background:#fff;border-radius:10px;border:0.5px solid rgba(0,0,0,0.1);padding:14px}
+.metric .lbl{font-size:11px;color:#888780;text-transform:uppercase;letter-spacing:.05em}
+.metric .val{font-size:20px;font-weight:500;margin-top:4px}
+.metric .hint{font-size:11px;color:#888780;margin-top:2px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.tab{padding:8px 14px;background:transparent;color:#888780;border:0.5px solid rgba(0,0,0,0.2);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
+.tab.active{background:#2C2C2A;color:#fff;border-color:transparent}
+.card{background:#fff;border-radius:12px;border:0.5px solid rgba(0,0,0,0.1);padding:16px 20px;margin-bottom:12px}
+.card-title{font-size:15px;font-weight:500;margin-bottom:12px}
+.row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:0.5px solid rgba(0,0,0,0.06);font-size:13px}
+.row:last-child{border-bottom:none}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+.ok{background:#E1F5EE;color:#085041}
+.warn{background:#FAEEDA;color:#854F0B}
+.danger{background:#FCEBEB;color:#791F1F}
+.info{background:#E6F1FB;color:#0C447C}
+.alert{padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.6;margin-bottom:8px}
+.progress-bg{height:8px;background:#EAEAE3;border-radius:4px;overflow:hidden;margin:8px 0}
+.progress-bar{height:100%;border-radius:4px;transition:width .3s}
+input[type=number],input[type=text],input[type=date],input[type=month],select,textarea{padding:6px 10px;border:0.5px solid rgba(0,0,0,0.2);border-radius:6px;font-size:13px;font-family:inherit;background:#fff;color:#2C2C2A}
+.inline-edit{padding:4px 8px;font-size:12px;border:0.5px solid rgba(0,0,0,0.15);border-radius:5px;width:100%;background:transparent;font-family:inherit}
+.inline-edit:focus{background:#fff;border-color:#1D9E75;outline:none}
+.btn{background:#2C2C2A;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
+.btn:hover{opacity:0.88}
+.btn-small{padding:4px 10px;font-size:12px}
+.btn-ghost{background:transparent;border:0.5px solid rgba(0,0,0,0.2);color:#2C2C2A}
+.btn-danger{background:#E24B4A;color:#fff}
+.btn-success{background:#1D9E75;color:#fff}
+.btn-warn{background:#BA7517;color:#fff}
+.table-head{display:grid;gap:8px;padding:0 6px 8px;border-bottom:0.5px solid rgba(0,0,0,0.1);font-size:11px;color:#888780;text-transform:uppercase;letter-spacing:.05em}
+.table-row{display:grid;gap:8px;padding:9px 6px;border-bottom:0.5px solid rgba(0,0,0,0.05);font-size:13px;align-items:center}
+.table-row:hover{background:#FAFAF7}
+.add-form{background:#F0F7FF;border-radius:8px;padding:14px;margin:12px 0}
+.form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+@media(max-width:600px){.form-grid{grid-template-columns:1fr 1fr}}
+.form-field label{font-size:11px;color:#888780;display:block;margin-bottom:3px}
+.form-field input,.form-field select{width:100%}
+.delete-icon{cursor:pointer;color:#E24B4A;font-size:16px;padding:4px 8px;border-radius:4px;text-align:center;user-select:none}
+.delete-icon:hover{background:#FCEBEB}
+.obj-actions{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.obj-actions input{width:100px}
+details{margin-top:12px}
+summary{cursor:pointer;color:#888780;font-size:12px;padding:4px 0;user-select:none}
+summary:hover{color:#2C2C2A}
+.checkbox-item{display:flex;align-items:center;padding:10px 14px;border:0.5px solid rgba(0,0,0,0.12);border-radius:8px;margin-bottom:6px;cursor:pointer;transition:all .15s;background:#fff}
+.checkbox-item:hover{border-color:#1D9E75}
+.checkbox-item.checked{background:#F3FBF7;border-color:#1D9E75}
+.checkbox-item input{margin-right:10px;accent-color:#1D9E75;width:16px;height:16px;cursor:pointer}
+.reco-hero{background:linear-gradient(135deg,#FFF9F0 0%,#FEF3E8 100%);border-left:4px solid #BA7517;border-radius:10px;padding:18px 20px;margin-bottom:14px}
+.reco-hero h3{font-size:16px;font-weight:500;color:#633806;margin-bottom:8px}
+.reco-option{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:14px 16px;background:#fff;border-radius:8px;margin-bottom:8px;border:0.5px solid rgba(0,0,0,0.08)}
+.reco-option:hover{border-color:#BA7517}
+.reco-num{width:32px;height:32px;border-radius:50%;background:#FEF3E8;color:#854F0B;font-weight:500;display:flex;align-items:center;justify-content:center;font-size:14px}
+.reco-title{font-weight:500;color:#2C2C2A;font-size:14px}
+.reco-desc{font-size:12px;color:#888780;margin-top:2px}
+.reco-gain{font-size:15px;font-weight:500;color:#0F6E56;white-space:nowrap}
+.gap-explain{background:#F5F5F0;padding:10px 12px;border-radius:6px;font-size:12px;color:#5F5E5A;margin-bottom:12px;line-height:1.7}
+.growth-card{background:#fff;border-radius:8px;padding:12px 14px;border:0.5px solid rgba(0,0,0,0.08)}
+.growth-year{font-size:11px;color:#888780;text-transform:uppercase;letter-spacing:.05em}
+.growth-val{font-size:18px;font-weight:500;margin-top:4px}
+.growth-detail{font-size:11px;color:#888780;margin-top:3px}
+.hero-progress{text-align:center;padding:16px 0}
+.hero-progress-num{font-size:36px;font-weight:500;color:#2C2C2A}
+.hero-progress-lbl{font-size:13px;color:#888780;margin-top:2px}
+.toolbar-btn{padding:6px 12px;background:#fff;border:0.5px solid rgba(0,0,0,0.15);border-radius:6px;font-size:12px;cursor:pointer;font-family:inherit;color:#2C2C2A;display:inline-flex;align-items:center;gap:6px}
+.toolbar-btn:hover{background:#FAFAF7;border-color:#2C2C2A}
+.cat-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:500}
+.month-header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:#F5F5F0;border-radius:8px;margin-bottom:12px}
+.month-total{font-size:22px;font-weight:500}
+.cat-bar-container{margin-bottom:10px}
+.cat-bar-label{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.cat-bar{height:10px;background:#EAEAE3;border-radius:3px;overflow:hidden}
+.cat-bar-fill{height:100%;border-radius:3px}
+.compare-indicator{font-size:11px;padding:2px 6px;border-radius:4px;margin-left:6px}
+.compare-up{background:#FCEBEB;color:#A32D2D}
+.compare-down{background:#E1F5EE;color:#085041}
+.compare-same{background:#F5F5F0;color:#888780}
+</style>
+</head>
+<body>
+
+<h1>Tableau de bord financier</h1>
+<div class="sub">Ahmed Meddahi · v8 · Cours or <span id="coursInfo"></span></div>
+
+<div class="grid4" id="metrics"></div>
+
+<div class="tabs">
+  <button class="tab active" onclick="show('apercu',this)">Aperçu</button>
+  <button class="tab" onclick="show('patrimoine',this)">Patrimoine</button>
+  <button class="tab" onclick="show('or',this)">Calculateur or</button>
+  <button class="tab" onclick="show('depenses',this)">Dépenses</button>
+  <button class="tab" onclick="show('objectifs',this)">Objectifs</button>
+  <button class="tab" onclick="show('scenarios',this)">Scénarios</button>
+  <button class="tab" onclick="show('dettes',this)">Dettes</button>
+  <button class="tab" onclick="show('detail',this)">Détail finance perso</button>
+</div>
+
+<div id="tab-apercu"></div>
+<div id="tab-patrimoine" style="display:none"></div>
+<div id="tab-or" style="display:none"></div>
+<div id="tab-depenses" style="display:none"></div>
+<div id="tab-objectifs" style="display:none"></div>
+<div id="tab-scenarios" style="display:none"></div>
+<div id="tab-dettes" style="display:none"></div>
+<div id="tab-detail" style="display:none"></div>
+
+<script>
+const fmt=n=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
+
+const DEFAULT_SNAPSHOTS=[
+{id:1,date:"2023-07-29",liquide:15560,livretA:5600,or:0,dettes:3634,credit:17000,net:6547},
+{id:2,date:"2023-09-21",liquide:17300,livretA:5760,or:0,dettes:2857,credit:17000,net:7400},
+{id:3,date:"2023-10-15",liquide:85,livretA:6360,or:0,dettes:3590,credit:17000,net:5700},
+{id:4,date:"2024-03-17",liquide:10881,livretA:6800,or:0,dettes:8649,credit:17000,net:9449},
+{id:5,date:"2024-05-25",liquide:9401,livretA:7360,or:0,dettes:9335,credit:17000,net:7976},
+{id:6,date:"2024-07-16",liquide:6530,livretA:7960,or:0,dettes:8414,credit:17000,net:5414},
+{id:7,date:"2024-09-07",liquide:7790,livretA:8360,or:0,dettes:8583,credit:17000,net:6000},
+{id:8,date:"2024-12-14",liquide:12610,livretA:9660,or:0,dettes:7998,credit:17000,net:9000},
+{id:9,date:"2025-01-04",liquide:12900,livretA:9660,or:0,dettes:8076,credit:17000,net:10340},
+{id:10,date:"2025-03-01",liquide:16500,livretA:10060,or:0,dettes:10647,credit:17000,net:13030},
+{id:11,date:"2025-04-17",liquide:8750,livretA:4000,or:0,dettes:7975,credit:5000,net:10725},
+{id:12,date:"2025-05-18",liquide:10800,livretA:4900,or:0,dettes:7775,credit:5000,net:13475},
+{id:13,date:"2025-07-15",liquide:6700,livretA:4900,or:0,dettes:7118,credit:5000,net:15918},
+{id:14,date:"2025-09-16",liquide:7665,livretA:4900,or:0,dettes:10752,credit:5000,net:18317},
+{id:15,date:"2025-10-15",liquide:6920,livretA:4900,or:4080,dettes:9752,credit:5000,net:16572},
+{id:16,date:"2025-11-11",liquide:12700,livretA:4900,or:4080,dettes:7862,credit:5000,net:20462},
+{id:17,date:"2025-12-27",liquide:12267,livretA:4500,or:9717,dettes:6005,credit:5000,net:24489},
+{id:18,date:"2026-02-04",liquide:5650,livretA:4600,or:9365,dettes:5660,credit:5000,net:20275},
+{id:19,date:"2026-04-17",liquide:8940,livretA:1620,or:9691,dettes:5554,credit:4666,net:21139}
+];
+
+const DEFAULT_OBJECTIFS=[
+{id:"mariage",nom:"Mariage",cible:12000,finance:0,couleur:"#D4537E",deadline:"2026-10",priorite:1,critique:true,note:""},
+{id:"bague",nom:"Bague",cible:2000,finance:0,couleur:"#7F77DD",deadline:"2026-10",priorite:2,critique:true,note:""},
+{id:"dot",nom:"Dot cash",cible:1000,finance:0,couleur:"#BA7517",deadline:"2026-10",priorite:3,critique:true,note:"Parure 4080€ déjà achetée"},
+{id:"impots2025",nom:"Impôts 2025",cible:4000,finance:0,couleur:"#A32D2D",deadline:"2026-12",priorite:4,critique:true,note:"Étalé mai-déc 2026 (500€/mois)"},
+{id:"appartMaman",nom:"Appart maman Algérie",cible:1000,finance:0,couleur:"#D85A30",deadline:"2027-06",priorite:5,critique:false,note:"4000€ déjà donnés sur 5000€"},
+{id:"voyageNoces",nom:"Voyage de noces",cible:5000,finance:0,couleur:"#378ADD",deadline:"2027-04",priorite:6,critique:false,note:""},
+{id:"ameublement",nom:"Ameublement",cible:8000,finance:0,couleur:"#1D9E75",deadline:"2026-12",priorite:7,critique:false,note:""},
+{id:"fba",nom:"Amazon FBA",cible:15000,finance:0,couleur:"#534AB7",deadline:"2027-04",priorite:8,critique:false,note:""}
+];
+
+const DEFAULT_DETTES=[
+{id:1,nom:"Titi",montant:890,depuis:"2024-05",statut:"actif",note:""},
+{id:2,nom:"Abed",montant:230,depuis:"2026-02",statut:"actif",note:"30€ + billets maman"},
+{id:3,nom:"Fethi frère",montant:500,depuis:"2025-08",statut:"actif",note:""},
+{id:4,nom:"Linda",montant:200,depuis:"2025-12",statut:"actif",note:"iPhone"},
+{id:5,nom:"Plan Mel - Yassine",montant:1200,depuis:"2024-07",statut:"ancien",note:"Bloqué 21+ mois"},
+{id:6,nom:"Plan Mel - Lamia",montant:2534,depuis:"2024-07",statut:"ancien",note:"Bloqué 21+ mois"}
+];
+
+const DEFAULT_OR={
+parure:{nom:"Parure (future épouse)",grammes:35,type:"18c",prixAchat:4080,dateAchat:"2024-10"},
+krugerrand:{nom:"Krugerrand (1 oz)",grammes:31.1,type:"22c",prixAchat:3000,dateAchat:"2025-12"},
+marianne1:{nom:"Marianne coq #1",grammes:5.8,type:"22c",prixAchat:600,dateAchat:"2025-12"},
+marianne2:{nom:"Marianne coq #2",grammes:5.8,type:"22c",prixAchat:600,dateAchat:"2025-12"},
+marianne3:{nom:"Marianne coq #3",grammes:5.8,type:"22c",prixAchat:600,dateAchat:"2025-12"}
+};
+
+const DEFAULT_COURS_OR={"24c":131.27,"22c":120.33,"21c":114.86,"18c":98.45,date:"2026-04-18"};
+
+const CAT_COLORS={
+"Maison":"#D85A30","Voiture":"#378ADD","Épicerie":"#1D9E75","Dons":"#BA7517","Voyage":"#7F77DD",
+"Autres":"#888780","Nourriture":"#E24B4A","Transport":"#F4A261","Factures":"#2C7DA0","Divertissement":"#D4537E",
+"Achats":"#9E6CD4","Impôt":"#A32D2D","Cadeaux":"#F59F27","Sport":"#48C9B0","Padel":"#16A085",
+"Dette CE":"#633806","Santé":"#E74C3C","Beauté":"#EC7063","Éducation":"#5499C7","Travail":"#5D6D7E",
+"Famille":"#AF7AC5","Amazon FBA":"#534AB7","Frais bancaires":"#6C757D"
+};
+
+const DEFAULT_SPENDEE={
+"2024-05":{rev:937,dep:725,cat:{Maison:400,Nourriture:136,Voyage:66,Divertissement:56,Transport:17,Épicerie:13,Autres:10,Sport:9,Cadeaux:9,Beauté:6}},
+"2024-06":{rev:1025,dep:2735,cat:{Maison:761,Nourriture:579,Divertissement:561,Autres:337,Voyage:273,Transport:71,Épicerie:67,Achats:32,Factures:23,Beauté:20,Sport:10}},
+"2024-07":{rev:2415,dep:4950,cat:{Voiture:2695,Achats:670,Nourriture:423,Maison:280,Épicerie:234,Voyage:121,Divertissement:114,Transport:109,Santé:103,Autres:85,Padel:49,Sport:33,Famille:20,Travail:15}},
+"2024-08":{rev:4528,dep:2789,cat:{Maison:822,Achats:376,Transport:322,Voiture:257,Autres:218,Nourriture:265,Épicerie:224,Padel:159,Voyage:154,Cadeaux:87,Santé:72,Divertissement:69,Sport:39,Beauté:35,Travail:6}},
+"2024-09":{rev:2799,dep:2777,cat:{Voiture:800,Maison:464,Épicerie:212,Autres:168,Factures:119,Transport:109,Divertissement:100,Achats:90,Sport:65,Beauté:55,Travail:8}},
+"2024-10":{rev:4695,dep:1319,cat:{Maison:878,Voiture:164,Épicerie:101,Transport:19,Nourriture:64,Factures:52,Sport:45,Padel:36}},
+"2024-11":{rev:4450,dep:1994,cat:{Maison:710,Autres:684,Divertissement:332,Nourriture:169,Épicerie:168,Transport:117,Voyage:162,Factures:76}},
+"2024-12":{rev:5342,dep:3706,cat:{Autres:1700,Transport:606,Maison:325,Épicerie:295,Voiture:222,Voyage:162,Nourriture:159,Factures:88,Éducation:29,Padel:18,Divertissement:15,Cadeaux:8}},
+"2025-01":{rev:4030,dep:2776,cat:{Achats:1096,Maison:371,Voiture:316,Nourriture:174,Épicerie:115,Dons:83,Voyage:126,Transport:79,Santé:68,Autres:63,Cadeaux:103,Sport:81,Factures:59,Padel:38,Beauté:30}},
+"2025-02":{rev:4209,dep:2708,cat:{Maison:1361,Voiture:404,Épicerie:286,Autres:161,Voyage:222,Achats:108,Factures:68,Sport:62,Padel:33,Éducation:28,Nourriture:20,Divertissement:15,Beauté:15}},
+"2025-03":{rev:3691,dep:5729,cat:{Autres:1900,Voiture:554,Maison:591,Dons:471,Cadeaux:192,Épicerie:166,Transport:99,Voyage:59,Sport:128,Padel:58,Factures:55,Beauté:15,Nourriture:48}},
+"2025-04":{rev:5390,dep:2243,cat:{Maison:867,Voiture:219,Autres:131,Nourriture:84,Épicerie:275,Voyage:159,Transport:156,Divertissement:103,Cadeaux:86,Santé:67,Padel:54,Factures:51,Sport:36}},
+"2025-05":{rev:4471,dep:3478,cat:{Achats:1156,Épicerie:525,Voyage:400,Maison:351,Voiture:308,Nourriture:177,"Amazon FBA":173,Transport:103,Sport:93,Factures:72,Éducation:50,Divertissement:25}},
+"2025-06":{rev:5106,dep:2963,cat:{Voyage:1292,Voiture:668,Autres:260,Maison:218,Nourriture:157,Épicerie:146,Transport:110,Factures:102,"Amazon FBA":88,Sport:64,Cadeaux:15}},
+"2025-07":{rev:5230,dep:3376,cat:{Voiture:863,Autres:520,Dons:400,Maison:380,Épicerie:240,Voyage:223,Transport:186,Sport:64,Factures:68,Achats:43,Travail:43,Nourriture:30}},
+"2025-08":{rev:5489,dep:3435,cat:{Voyage:744,Maison:650,Autres:576,Santé:384,Transport:209,Voiture:147,Divertissement:224,Épicerie:177,Dons:68,Travail:88,Sport:92,Nourriture:55}},
+"2025-09":{rev:6339,dep:3413,cat:{Voiture:457,Maison:454,Autres:452,Épicerie:185,Dons:282,Divertissement:85,Transport:108,Santé:126,Achats:271,Nourriture:78,Impôt:124}},
+"2025-10":{rev:4695,dep:1319,cat:{Maison:818,Voiture:147,Épicerie:100,Transport:90,Autres:64,Factures:62,Nourriture:23,Sport:45}},
+"2025-11":{rev:5742,dep:3292,cat:{Voiture:656,Maison:669,Achats:287,Épicerie:253,Voyage:800,Transport:93,Factures:80,Sport:65}},
+"2025-12":{rev:5812,dep:7181,cat:{Dons:3228,Maison:685,Autres:357,Voiture:266,Épicerie:282,Transport:192,Impôt:127,Factures:65,Sport:33,Achats:16}},
+"2026-01":{rev:4254,dep:5010,cat:{Voyage:1669,Dons:866,Transport:869,Voiture:518,Maison:526,Autres:253,Cadeaux:170,Factures:124,Divertissement:87,Famille:18,Santé:42}},
+"2026-02":{rev:4162,dep:1762,cat:{Maison:567,Épicerie:187,Voiture:245,"Dette CE":178,Transport:85,Factures:78,Dons:50,Éducation:65,Nourriture:25,Sport:25,Achats:13}},
+"2026-03":{rev:4450,dep:4834,cat:{Dons:2580,Maison:558,Voiture:369,Épicerie:329,Impôt:300,Cadeaux:260,Sport:90,"Dette CE":85,Transport:79,Factures:58,Nourriture:31,Beauté:30,Autres:22,Achats:21,Divertissement:13,"Frais bancaires":9}},
+"2026-04":{rev:1240,dep:2294,cat:{Maison:633,Travail:586,Impôt:300,Voiture:248,Épicerie:176,Autres:130,Factures:107,"Dette CE":85,Nourriture:20,"Frais bancaires":9}}
+};
+
+function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):JSON.parse(JSON.stringify(d))}catch(e){return JSON.parse(JSON.stringify(d))}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+
+let snapshots=load('ahmed8-snaps',DEFAULT_SNAPSHOTS);
+let objectifs=load('ahmed8-obj',DEFAULT_OBJECTIFS);
+let dettes=load('ahmed8-dettes',DEFAULT_DETTES);
+let pieces=load('ahmed8-or',DEFAULT_OR);
+let coursOr=load('ahmed8-cours',DEFAULT_COURS_OR);
+let scenarioActif=load('ahmed8-scenario',["mariage","bague","dot","impots2025"]);
+let showHistory=load('ahmed8-showhist',false);
+let spendeeData=load('ahmed8-spendee',DEFAULT_SPENDEE);
+let selectedMonth=load('ahmed8-selmonth','2026-03');
+
+function saveAll(){
+  save('ahmed8-snaps',snapshots);
+  save('ahmed8-obj',objectifs);
+  save('ahmed8-dettes',dettes);
+  save('ahmed8-or',pieces);
+  save('ahmed8-cours',coursOr);
+  save('ahmed8-scenario',scenarioActif);
+  save('ahmed8-showhist',showHistory);
+  save('ahmed8-spendee',spendeeData);
+  save('ahmed8-selmonth',selectedMonth);
+}
+
+function exportData(){
+  const data={snapshots,objectifs,dettes,pieces,coursOr,scenarioActif,showHistory,spendeeData,exportDate:new Date().toISOString(),version:'v8'};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='finances-ahmed-'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const d=JSON.parse(e.target.result);
+      if(!confirm('Cela remplacera toutes tes données actuelles. Continuer ?'))return;
+      if(d.snapshots)snapshots=d.snapshots;
+      if(d.objectifs)objectifs=d.objectifs;
+      if(d.dettes)dettes=d.dettes;
+      if(d.pieces)pieces=d.pieces;
+      if(d.coursOr)coursOr=d.coursOr;
+      if(d.scenarioActif)scenarioActif=d.scenarioActif;
+      if(d.spendeeData)spendeeData=d.spendeeData;
+      saveAll();
+      renderMetrics();renderApercu();
+      alert('Données importées !\nExport du '+(d.exportDate?new Date(d.exportDate).toLocaleString('fr-FR'):'date inconnue'));
+    }catch(err){alert('Erreur : fichier invalide')}
+  };
+  reader.readAsText(file);
+  input.value='';
+}
+
+function calcOrTotal(){return Object.values(pieces).reduce((s,p)=>s+(p.grammes*(coursOr[p.type]||0)),0)}
+
+function calcFinanceSecurise(){return objectifs.reduce((s,o)=>s+(o.finance||0),0)}
+
+function calculs(){
+  const s=snapshots[snapshots.length-1];
+  const dActifs=dettes.filter(d=>d.statut==='actif').reduce((sum,d)=>sum+d.montant,0);
+  const dAnciens=dettes.filter(d=>d.statut==='ancien').reduce((sum,d)=>sum+d.montant,0);
+  const orTotal=calcOrTotal();
+  const netComptable=s.liquide+s.livretA+orTotal+dActifs+dAnciens-s.credit;
+  const cashMobilisable=s.liquide+s.livretA+dActifs-s.credit;
+  const financeSecurise=calcFinanceSecurise();
+  const cashLibre=cashMobilisable-financeSecurise;
+  const epargneReelle=1436;
+  return{s,dActifs,dAnciens,orTotal,netComptable,cashMobilisable,cashLibre,financeSecurise,epargneReelle};
+}
+
+function monthsUntil(deadlineStr){
+  if(!deadlineStr||!deadlineStr.includes('-'))return 6;
+  const [y,m]=deadlineStr.split('-').map(Number);
+  const today=new Date('2026-04-19');
+  const target=new Date(y,m-1,1);
+  const diff=(target.getFullYear()-today.getFullYear())*12+(target.getMonth()-today.getMonth());
+  return Math.max(1,diff);
+}
+
+function formatDeadline(d){
+  if(!d||!d.includes('-'))return d||'-';
+  const [y,m]=d.split('-');
+  const mois=['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sept','Oct','Nov','Déc'];
+  return `${mois[parseInt(m)-1]} ${y}`;
+}
+
+function show(id,btn){
+  document.querySelectorAll('[id^="tab-"]').forEach(el=>el.style.display='none');
+  document.getElementById('tab-'+id).style.display='block';
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTab(id);
+}
+
+let charts={};
+function destroyChart(id){if(charts[id]){charts[id].destroy();delete charts[id]}}
+
+function renderMetrics(){
+  const{netComptable,epargneReelle,orTotal,s,cashLibre,financeSecurise}=calculs();
+  const totalBanque=s.liquide+s.livretA;
+  document.getElementById('metrics').innerHTML=`
+    <div class="metric"><div class="lbl">Patrimoine net</div><div class="val">${fmt(netComptable)}</div><div class="hint">Tous actifs inclus</div></div>
+    <div class="metric"><div class="lbl">Épargne réelle/mois</div><div class="val" style="color:#0F6E56">${fmt(epargneReelle)}</div><div class="hint">Moyenne 24 mois</div></div>
+    <div class="metric"><div class="lbl">Or total</div><div class="val" style="color:#854F0B">${fmt(orTotal)}</div><div class="hint">Cours ${coursOr.date}</div></div>
+    <div class="metric"><div class="lbl">Cash en banque</div><div class="val">${fmt(totalBanque)}</div><div class="hint">Libre : <strong style="color:${cashLibre>=0?'#0F6E56':'#A32D2D'}">${fmt(cashLibre)}</strong> · Réservé : ${fmt(financeSecurise)}</div></div>
+  `;
+  document.getElementById('coursInfo').textContent=coursOr.date;
+}
+
+function renderTab(id){
+  const fns={apercu:renderApercu,patrimoine:renderPatrimoine,or:renderOr,depenses:renderDepenses,objectifs:renderObjectifs,scenarios:renderScenarios,dettes:renderDettes,detail:renderDetail};
+  if(fns[id])fns[id]();
+}
+
+function renderApercu(){
+  const c=calculs();
+  const itemsActifs=objectifs.filter(o=>scenarioActif.includes(o.id));
+  const totalParMois=itemsActifs.reduce((s,o)=>s+Math.max(0,o.cible-o.finance)/Math.max(1,monthsUntil(o.deadline)),0);
+  const ok=c.epargneReelle>=totalParMois;
+  const deadlineMin=itemsActifs.length?itemsActifs.reduce((a,b)=>monthsUntil(a.deadline)<monthsUntil(b.deadline)?a:b):null;
+  
+  let alertTexte='';
+  if(itemsActifs.length===0){
+    alertTexte=`<div class="alert info"><strong>Aucun scénario sélectionné</strong> — Va dans "Scénarios" pour cocher tes objectifs.</div>`;
+  }else{
+    const nomScenario=itemsActifs.map(o=>o.nom).join(', ');
+    alertTexte=`<div class="alert ${ok?'ok':'warn'}">
+      <strong>Scénario actuel : ${nomScenario}</strong><br/>
+      Échéance proche : ${formatDeadline(deadlineMin.deadline)} (${monthsUntil(deadlineMin.deadline)} mois) · Total/mois requis : ${fmt(totalParMois)}
+      ${ok?' — Trajectoire OK.':' — Voir recommandations dans Dépenses.'}
+    </div>`;
+  }
+  
+  document.getElementById('tab-apercu').innerHTML=`
+    ${alertTexte}
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title">Situation actuelle</div>
+        <div class="row"><span style="color:#888780">Cash comptes courants</span><strong>${fmt(c.s.liquide)}</strong></div>
+        <div class="row"><span style="color:#888780">Livret A</span><strong>${fmt(c.s.livretA)}</strong></div>
+        <div class="row" style="background:#F0F7FF;padding:9px 10px;border-radius:6px;margin:4px 0"><span style="color:#0C447C;font-weight:500">Cash libre (non réservé)</span><strong style="color:${c.cashLibre>=0?'#0F6E56':'#A32D2D'}">${fmt(c.cashLibre)}</strong></div>
+        <div class="row"><span style="color:#888780">Sécurisé dans Pots</span><strong style="color:#185FA5">${fmt(c.financeSecurise)}</strong></div>
+        <div class="row"><span style="color:#888780">Or total</span><strong style="color:#854F0B">${fmt(c.orTotal)}</strong></div>
+        <div class="row"><span style="color:#888780">Dettes récentes</span><strong style="color:#0F6E56">${fmt(c.dActifs)}</strong></div>
+        <div class="row"><span style="color:#888780">Plan Mel (incertain)</span><strong style="color:#A32D2D">${fmt(c.dAnciens)}</strong></div>
+        <div class="row"><span style="color:#888780">Crédit étudiant 0%</span><strong>-${fmt(c.s.credit)}</strong></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Points clés</div>
+        <div class="alert warn">Impôts 2025 (4 000€) à payer sept-déc 2026.</div>
+        <div class="alert warn">Plan Mel 3 734€ bloqués 21 mois.</div>
+        <div class="alert ok">Épargne structurelle 33% sur 24 mois.</div>
+        <div class="alert info">Cours or 18c : ${coursOr["18c"]}€/g · 22c : ${coursOr["22c"]}€/g</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderPatrimoine(){
+  const c=calculs();
+  const net2023=snapshots.filter(s=>s.date.startsWith('2023'));
+  const net2024=snapshots.filter(s=>s.date.startsWith('2024'));
+  const net2025=snapshots.filter(s=>s.date.startsWith('2025'));
+  const net2026=snapshots.filter(s=>s.date.startsWith('2026'));
+  const croissance=(arr)=>{if(arr.length<2)return 0;return arr[arr.length-1].net-arr[0].net;};
+  
+  const g2024=croissance([...net2023.slice(-1),...net2024]);
+  const g2025=croissance([...net2024.slice(-1),...net2025]);
+  const g2026=croissance([...net2025.slice(-1),...net2026]);
+  
+  const depart=snapshots[0].net;
+  const actuel=snapshots[snapshots.length-1].net;
+  const growthPct=Math.round((actuel-depart)/depart*100);
+  
+  const itemsActifs=objectifs.filter(o=>scenarioActif.includes(o.id));
+  const totalScenario=itemsActifs.reduce((s,o)=>s+o.cible,0);
+  const financeScenario=itemsActifs.reduce((s,o)=>s+o.finance,0);
+  const pctScenario=totalScenario>0?Math.round(financeScenario/totalScenario*100):0;
+  
+  const requisMensuel=itemsActifs.reduce((s,o)=>s+Math.max(0,o.cible-o.finance)/Math.max(1,monthsUntil(o.deadline)),0);
+  
+  document.getElementById('tab-patrimoine').innerHTML=`
+    <div class="card">
+      <div class="card-title">Évolution du patrimoine net</div>
+      <p style="font-size:12px;color:#888780;margin-bottom:12px">${snapshots.length} relevés · de ${snapshots[0].date} à ${snapshots[snapshots.length-1].date}</p>
+      <div style="position:relative;height:320px"><canvas id="cPatrimoine"></canvas></div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">Progression globale depuis juillet 2023</div>
+      <div class="hero-progress">
+        <div class="hero-progress-num" style="color:#0F6E56">+${growthPct}%</div>
+        <div class="hero-progress-lbl">Croissance : ${fmt(depart)} → ${fmt(actuel)}</div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">Croissance année par année</div>
+      <div class="grid3">
+        <div class="growth-card">
+          <div class="growth-year">2024</div>
+          <div class="growth-val" style="color:${g2024>=0?'#0F6E56':'#A32D2D'}">${g2024>=0?'+':''}${fmt(g2024)}</div>
+          <div class="growth-detail">${net2024.length} relevés</div>
+        </div>
+        <div class="growth-card">
+          <div class="growth-year">2025</div>
+          <div class="growth-val" style="color:${g2025>=0?'#0F6E56':'#A32D2D'}">${g2025>=0?'+':''}${fmt(g2025)}</div>
+          <div class="growth-detail">${net2025.length} relevés</div>
+        </div>
+        <div class="growth-card">
+          <div class="growth-year">2026 (en cours)</div>
+          <div class="growth-val" style="color:${g2026>=0?'#0F6E56':'#A32D2D'}">${g2026>=0?'+':''}${fmt(g2026)}</div>
+          <div class="growth-detail">${net2026.length} relevés</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">Progression objectifs (scénario actuel)</div>
+      <p style="font-size:12px;color:#888780;margin-bottom:10px">Basé sur ce que tu as déclaré avoir sécurisé dans tes Pots Yuh</p>
+      <div class="hero-progress">
+        <div class="hero-progress-num" style="color:${pctScenario>=50?'#0F6E56':'#BA7517'}">${pctScenario}%</div>
+        <div class="hero-progress-lbl">${fmt(financeScenario)} sur ${fmt(totalScenario)} sécurisés</div>
+      </div>
+      <div class="progress-bg" style="height:12px"><div class="progress-bar" style="background:#1D9E75;width:${pctScenario}%"></div></div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">Objectifs d'épargne à atteindre</div>
+      <div class="grid4">
+        <div class="metric"><div class="lbl">Par mois</div><div class="val" style="color:#185FA5">${fmt(requisMensuel)}</div><div class="hint">vs ${fmt(c.epargneReelle)} réel</div></div>
+        <div class="metric"><div class="lbl">Trimestre</div><div class="val" style="color:#185FA5">${fmt(requisMensuel*3)}</div></div>
+        <div class="metric"><div class="lbl">Semestre</div><div class="val" style="color:#185FA5">${fmt(requisMensuel*6)}</div></div>
+        <div class="metric"><div class="lbl">Annuel</div><div class="val" style="color:#185FA5">${fmt(requisMensuel*12)}</div></div>
+      </div>
+      <div class="alert ${c.epargneReelle>=requisMensuel?'ok':'warn'}" style="margin-top:10px">
+        ${c.epargneReelle>=requisMensuel?`Ton épargne réelle couvre. Marge : +${fmt(c.epargneReelle-requisMensuel)}/mois.`:`Déficit mensuel : ${fmt(requisMensuel-c.epargneReelle)}. Voir Dépenses.`}
+      </div>
+    </div>
+  `;
+  
+  destroyChart('patrimoine');
+  charts['patrimoine']=new Chart(document.getElementById('cPatrimoine'),{
+    type:'line',
+    data:{labels:snapshots.map(s=>s.date),datasets:[{data:snapshots.map(s=>s.net),borderColor:'#D85A30',borderWidth:2,pointRadius:4,pointBackgroundColor:'#D85A30',pointBorderWidth:0,tension:0,fill:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fmt(ctx.parsed.y)}}},scales:{x:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:10},maxRotation:45,minRotation:45,color:'#5F5E5A'}},y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{callback:v=>Math.round(v/1000)+'k €',font:{size:11},color:'#5F5E5A'},beginAtZero:true}}}
+  });
+}
+
+function renderOr(){
+  const orTotal=calcOrTotal();
+  let rows='';
+  Object.entries(pieces).forEach(([k,p])=>{
+    const val=p.grammes*(coursOr[p.type]||0);
+    const plusmoins=val-(p.prixAchat||0);
+    rows+=`<div class="table-row" style="grid-template-columns:1.8fr 0.7fr 0.7fr 1fr 1fr 0.4fr">
+      <input class="inline-edit" value="${p.nom}" onchange="updatePiece('${k}','nom',this.value)">
+      <input class="inline-edit" type="number" step="0.1" value="${p.grammes}" onchange="updatePiece('${k}','grammes',parseFloat(this.value))">
+      <select class="inline-edit" onchange="updatePiece('${k}','type',this.value)">
+        <option value="24c" ${p.type==='24c'?'selected':''}>24c</option><option value="22c" ${p.type==='22c'?'selected':''}>22c</option>
+        <option value="21c" ${p.type==='21c'?'selected':''}>21c</option><option value="18c" ${p.type==='18c'?'selected':''}>18c</option>
+      </select>
+      <span style="padding:0 8px">${fmt(val)}</span>
+      <span style="padding:0 8px;color:${plusmoins>=0?'#0F6E56':'#A32D2D'}">${plusmoins>=0?'+':''}${fmt(plusmoins)}</span>
+      <span class="delete-icon" onclick="removePiece('${k}')">×</span>
+    </div>`;
+  });
+  document.getElementById('tab-or').innerHTML=`
+    <div class="card">
+      <div class="card-title">Cours actuel</div>
+      <div class="grid4">
+        <div class="metric"><div class="lbl">24 carats</div><div class="val">${coursOr["24c"]}€</div><div class="hint">/g</div></div>
+        <div class="metric"><div class="lbl">22 carats</div><div class="val">${coursOr["22c"]}€</div><div class="hint">/g</div></div>
+        <div class="metric"><div class="lbl">21 carats</div><div class="val">${coursOr["21c"]}€</div><div class="hint">/g</div></div>
+        <div class="metric"><div class="lbl">18 carats</div><div class="val">${coursOr["18c"]}€</div><div class="hint">/g</div></div>
+      </div>
+      <details><summary>Mettre à jour les cours</summary>
+        <div class="add-form">
+          <div class="form-grid">
+            <div class="form-field"><label>24c</label><input type="number" step="0.01" id="c24" value="${coursOr["24c"]}"></div>
+            <div class="form-field"><label>22c</label><input type="number" step="0.01" id="c22" value="${coursOr["22c"]}"></div>
+            <div class="form-field"><label>21c</label><input type="number" step="0.01" id="c21" value="${coursOr["21c"]}"></div>
+            <div class="form-field"><label>18c</label><input type="number" step="0.01" id="c18" value="${coursOr["18c"]}"></div>
+            <div class="form-field"><label>Date</label><input type="date" id="cdate" value="${coursOr.date}"></div>
+          </div>
+          <button class="btn" onclick="updateCours()">Mettre à jour</button>
+        </div>
+      </details>
+    </div>
+    <div class="card">
+      <div class="card-title">Mes pièces — Total : ${fmt(orTotal)}</div>
+      <div class="table-head" style="grid-template-columns:1.8fr 0.7fr 0.7fr 1fr 1fr 0.4fr">
+        <span>Nom</span><span>Grammes</span><span>Carats</span><span>Valeur</span><span>+/-</span><span></span>
+      </div>${rows}
+      <details><summary>+ Ajouter une pièce</summary>
+        <div class="add-form">
+          <div class="form-grid">
+            <div class="form-field"><label>Nom</label><input type="text" id="pNom"></div>
+            <div class="form-field"><label>Grammes</label><input type="number" step="0.1" id="pGr"></div>
+            <div class="form-field"><label>Carats</label><select id="pType"><option value="24c">24c</option><option value="22c" selected>22c</option><option value="21c">21c</option><option value="18c">18c</option></select></div>
+            <div class="form-field"><label>Prix achat</label><input type="number" id="pPrix"></div>
+            <div class="form-field"><label>Date achat</label><input type="date" id="pDate"></div>
+          </div>
+          <button class="btn btn-success" onclick="addPiece()">Ajouter</button>
+        </div>
+      </details>
+    </div>
+  `;
+}
+
+function updatePiece(k,field,val){if(!pieces[k])return;pieces[k][field]=val;saveAll();renderMetrics();if(field==='nom'||field==='grammes'||field==='type')renderOr()}
+function updateCours(){coursOr={"24c":parseFloat(document.getElementById('c24').value)||0,"22c":parseFloat(document.getElementById('c22').value)||0,"21c":parseFloat(document.getElementById('c21').value)||0,"18c":parseFloat(document.getElementById('c18').value)||0,date:document.getElementById('cdate').value};saveAll();renderMetrics();renderOr()}
+function addPiece(){const nom=document.getElementById('pNom').value;const gr=parseFloat(document.getElementById('pGr').value);if(!nom||!gr){alert('Nom et grammes requis');return}pieces['p'+Date.now()]={nom,grammes:gr,type:document.getElementById('pType').value,prixAchat:parseFloat(document.getElementById('pPrix').value)||0,dateAchat:document.getElementById('pDate').value};saveAll();renderMetrics();renderOr()}
+function removePiece(k){if(!confirm('Supprimer ?'))return;delete pieces[k];saveAll();renderMetrics();renderOr()}
+
+function renderDepenses(){
+  const mois=Object.keys(spendeeData).sort();
+  const moisSelect=selectedMonth;
+  const moisIdx=mois.indexOf(moisSelect);
+  const prevMois=moisIdx>0?mois[moisIdx-1]:null;
+  const cur=spendeeData[moisSelect];
+  const prev=prevMois?spendeeData[prevMois]:null;
+  const epargne=cur?cur.rev-cur.dep:0;
+  const epargnePrev=prev?prev.rev-prev.dep:0;
+  
+  const totaux=mois.reduce((acc,m)=>{acc.rev+=spendeeData[m].rev;acc.dep+=spendeeData[m].dep;return acc},{rev:0,dep:0});
+  const moyRev=totaux.rev/mois.length;
+  const moyDep=totaux.dep/mois.length;
+  const moyEp=moyRev-moyDep;
+  
+  let catsTriees=[];
+  if(cur&&cur.cat){
+    catsTriees=Object.entries(cur.cat).sort((a,b)=>b[1]-a[1]);
+  }
+  const maxCat=catsTriees.length?catsTriees[0][1]:1;
+  
+  let catRows='';
+  catsTriees.forEach(([nom,val])=>{
+    const prevVal=prev&&prev.cat&&prev.cat[nom]?prev.cat[nom]:0;
+    const diff=val-prevVal;
+    const color=CAT_COLORS[nom]||'#888780';
+    const pct=(val/maxCat)*100;
+    const compareText=prevVal===0?'nouveau':(diff>0?`+${fmt(diff)}`:`${fmt(diff)}`);
+    const compareClass=prevVal===0?'compare-same':(diff>10?'compare-up':(diff<-10?'compare-down':'compare-same'));
+    catRows+=`<div class="cat-bar-container">
+      <div class="cat-bar-label">
+        <span><span class="cat-pill" style="background:${color}20;color:${color}">${nom}</span></span>
+        <span><strong>${fmt(val)}</strong><span class="compare-indicator ${compareClass}">${compareText}</span></span>
+      </div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="background:${color};width:${pct}%"></div></div>
+    </div>`;
+  });
+  
+  const moisOptions=mois.map(m=>`<option value="${m}" ${m===moisSelect?'selected':''}>${formatDeadline(m)}</option>`).join('');
+  
+  document.getElementById('tab-depenses').innerHTML=`
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+        <div class="card-title" style="margin-bottom:0">Vue cash-flow mensuelle</div>
+        <div style="display:flex;gap:6px">
+          <button class="toolbar-btn" onclick="exportData()">⬇ Exporter</button>
+          <button class="toolbar-btn" onclick="document.getElementById('importInput').click()">⬆ Importer</button>
+          <input type="file" id="importInput" accept=".json" style="display:none" onchange="importData(this)">
+        </div>
+      </div>
+      <p style="font-size:12px;color:#888780;margin-bottom:12px">${mois.length} mois d'historique · Mai 2024 → Avril 2026</p>
+      
+      <div class="month-header">
+        <div>
+          <div style="font-size:12px;color:#888780;text-transform:uppercase;letter-spacing:0.05em">Mois sélectionné</div>
+          <select onchange="selectedMonth=this.value;saveAll();renderDepenses()" style="font-size:16px;font-weight:500;border:none;background:transparent;padding:4px 0;cursor:pointer">${moisOptions}</select>
+        </div>
+        <div style="text-align:right">
+          <div class="month-total" style="color:${epargne>=0?'#0F6E56':'#A32D2D'}">${epargne>=0?'+':''}${fmt(epargne)}</div>
+          <div style="font-size:11px;color:#888780">Épargne du mois</div>
+        </div>
+      </div>
+      
+      <div class="grid3">
+        <div class="metric">
+          <div class="lbl">Revenus</div>
+          <div class="val" style="color:#0F6E56">+${fmt(cur?cur.rev:0)}</div>
+          <div class="hint">${prev?`vs ${fmt(prev.rev)} (${cur.rev>prev.rev?'+':''}${fmt(cur.rev-prev.rev)})`:'—'}</div>
+        </div>
+        <div class="metric">
+          <div class="lbl">Dépenses</div>
+          <div class="val" style="color:#A32D2D">-${fmt(cur?cur.dep:0)}</div>
+          <div class="hint">${prev?`vs ${fmt(prev.dep)} (${cur.dep>prev.dep?'+':''}${fmt(cur.dep-prev.dep)})`:'—'}</div>
+        </div>
+        <div class="metric">
+          <div class="lbl">Épargne nette</div>
+          <div class="val" style="color:${epargne>=0?'#0F6E56':'#A32D2D'}">${epargne>=0?'+':''}${fmt(epargne)}</div>
+          <div class="hint">Moy 24 mois : ${fmt(moyEp)}</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">Détail par catégorie — ${formatDeadline(moisSelect)}</div>
+      <p style="font-size:12px;color:#888780;margin-bottom:12px">Comparaison vs mois précédent (${prev?formatDeadline(prevMois):'—'})</p>
+      ${catRows||'<p style="color:#888780;padding:20px 0;text-align:center">Aucune donnée pour ce mois</p>'}
+    </div>
+    
+    <div class="card">
+      <div class="card-title">Évolution revenus / dépenses / épargne sur 24 mois</div>
+      <div style="position:relative;height:280px"><canvas id="cEvol"></canvas></div>
+    </div>
+    
+    <div class="card">
+      <div class="card-title">Moyennes sur 24 mois</div>
+      <div class="grid3">
+        <div class="metric">
+          <div class="lbl">Revenu moyen</div>
+          <div class="val" style="color:#0F6E56">${fmt(moyRev)}</div>
+          <div class="hint">${fmt(totaux.rev)} cumulé</div>
+        </div>
+        <div class="metric">
+          <div class="lbl">Dépense moyenne</div>
+          <div class="val" style="color:#A32D2D">${fmt(moyDep)}</div>
+          <div class="hint">${fmt(totaux.dep)} cumulé</div>
+        </div>
+        <div class="metric">
+          <div class="lbl">Épargne moyenne</div>
+          <div class="val" style="color:${moyEp>=0?'#0F6E56':'#A32D2D'}">${moyEp>=0?'+':''}${fmt(moyEp)}</div>
+          <div class="hint">${Math.round(moyEp/moyRev*100)}% du revenu</div>
+        </div>
+      </div>
+    </div>
+    
+    ${renderRecommandations()}
+  `;
+  
+  destroyChart('evol');
+  charts['evol']=new Chart(document.getElementById('cEvol'),{
+    type:'line',
+    data:{
+      labels:mois,
+      datasets:[
+        {label:'Revenus',data:mois.map(m=>spendeeData[m].rev),borderColor:'#0F6E56',borderWidth:2,pointRadius:3,tension:0,fill:false},
+        {label:'Dépenses',data:mois.map(m=>spendeeData[m].dep),borderColor:'#A32D2D',borderWidth:2,pointRadius:3,tension:0,fill:false},
+        {label:'Épargne',data:mois.map(m=>spendeeData[m].rev-spendeeData[m].dep),borderColor:'#D85A30',borderWidth:2,pointRadius:3,tension:0,fill:false}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11}}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+' : '+fmt(ctx.parsed.y)}}},scales:{x:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:10},maxRotation:45,minRotation:45,color:'#5F5E5A'}},y:{grid:{color:'rgba(0,0,0,0.05)'},ticks:{callback:v=>Math.round(v/1000)+'k €',font:{size:11}}}}}
+  });
+}
+
+function renderRecommandations(){
+  const c=calculs();
+  const itemsActifs=objectifs.filter(o=>scenarioActif.includes(o.id));
+  const totalParMois=itemsActifs.reduce((s,o)=>s+Math.max(0,o.cible-o.finance)/Math.max(1,monthsUntil(o.deadline)),0);
+  const deficit=Math.max(0,totalParMois-c.epargneReelle);
+  
+  if(deficit<=0)return `<div class="card"><div class="card-title">Recommandations</div><div class="reco-hero"><h3>Tu es sur la bonne trajectoire</h3><p style="font-size:13px;color:#854F0B">Épargne actuelle ${fmt(c.epargneReelle)}/mois couvre les ${fmt(totalParMois)}/mois requis. Marge : +${fmt(c.epargneReelle-totalParMois)}/mois.</p></div></div>`;
+  
+  return `<div class="card">
+    <div class="card-title">Recommandations pour combler le déficit</div>
+    <div class="reco-hero">
+      <h3>Tu as un déficit de ${fmt(deficit)}/mois à combler</h3>
+      <p style="font-size:13px;color:#854F0B">Voici les leviers les plus efficaces. Combine-en 2-3 et tu y es.</p>
+    </div>
+    <div class="reco-option"><div class="reco-num">1</div><div><div class="reco-title">Dons sadaka temporaires</div><div class="reco-desc">Moyenne historique 350€/mois, mais pics à 2 580-3 228€. Lisser à 200€/mois max pendant 6 mois.</div></div><div class="reco-gain">+150€/mois</div></div>
+    <div class="reco-option"><div class="reco-num">2</div><div><div class="reco-title">Plafonner catégorie "Autres"</div><div class="reco-desc">Poste mal labellisé (pics à 1 700-1 900€). Recatégoriser dans Spendee + plafonner à 150€/mois.</div></div><div class="reco-gain">+300€/mois</div></div>
+    <div class="reco-option"><div class="reco-num">3</div><div><div class="reco-title">Pause voyages</div><div class="reco-desc">Moyenne 330€/mois + pics à 1 292-1 669€. Pause 6 mois (mai-oct 2026), reprendre pour lune de miel.</div></div><div class="reco-gain">+330€/mois</div></div>
+    <div class="reco-option"><div class="reco-num">4</div><div><div class="reco-title">Relancer les Plan Mel</div><div class="reco-desc">3 734€ bloqués 21 mois. Envoyer un message cette semaine.</div></div><div class="reco-gain">+622€/mois si récup</div></div>
+    <div class="reco-option"><div class="reco-num">5</div><div><div class="reco-title">Achats non essentiels</div><div class="reco-desc">Mai 2025 : 1 156€ · Jan 2025 : 1 096€. Règle 48h pour tout achat > 100€.</div></div><div class="reco-gain">+200€/mois</div></div>
+  </div>`;
+}
+
+function renderObjectifs(){
+  let rows='';
+  objectifs.sort((a,b)=>a.priorite-b.priorite).forEach(o=>{
+    const pct=Math.min(100,Math.round(o.finance/o.cible*100));
+    rows+=`<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:10px">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="badge" style="background:${o.couleur};color:#fff">#${o.priorite}</span>
+            ${o.critique?'<span class="badge danger">Critique</span>':''}
+            <input class="inline-edit" style="font-weight:500;font-size:15px;flex:1;min-width:180px" value="${o.nom}" onchange="updateObj('${o.id}','nom',this.value)">
+          </div>
+          <div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+            <input type="month" class="inline-edit" style="width:130px;font-size:11px" value="${o.deadline}" onchange="updateObj('${o.id}','deadline',this.value)">
+            <input class="inline-edit" style="flex:1;min-width:160px;font-size:11px" value="${o.note||''}" onchange="updateObj('${o.id}','note',this.value)" placeholder="Note">
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:15px;font-weight:500">${fmt(o.finance)} / ${fmt(o.cible)}</div>
+          <div style="font-size:11px;color:#888780">${pct}% sécurisé</div>
+        </div>
+      </div>
+      <div class="progress-bg"><div class="progress-bar" style="background:${o.couleur};width:${pct}%"></div></div>
+      <div class="obj-actions">
+        <input type="number" id="inp-${o.id}" placeholder="Montant €">
+        <button class="btn btn-small btn-success" onclick="addFinance('${o.id}',1)">+ Ajouter</button>
+        <button class="btn btn-small btn-warn" onclick="addFinance('${o.id}',-1)">− Retirer</button>
+        <input type="number" id="cible-${o.id}" value="${o.cible}" style="width:100px">
+        <button class="btn btn-small btn-ghost" onclick="updateCible('${o.id}')">Ajuster cible</button>
+        <label style="font-size:12px;color:#888780;display:flex;align-items:center;gap:4px;margin-left:8px">
+          <input type="checkbox" ${o.critique?'checked':''} onchange="toggleCritique('${o.id}')" style="accent-color:#D4537E"> Critique
+        </label>
+        <button class="btn btn-small btn-danger" onclick="removeObj('${o.id}')" style="margin-left:auto">Supprimer</button>
+      </div>
+    </div>`;
+  });
+  document.getElementById('tab-objectifs').innerHTML=`
+    <div class="card" style="background:#E6F1FB;border-color:#85B7EB">
+      <h3 style="font-size:15px;font-weight:500;color:#0C447C;margin-bottom:8px">Comment ça marche ?</h3>
+      <p style="font-size:13px;color:#0C447C;line-height:1.7">
+        <strong>Tu crées un Pot dédié sur Yuh pour chaque gros objectif.</strong><br/>
+        Chaque mois, tu vires de l'argent vers tes Pots. Après ton virement, clique <strong>"+ Ajouter"</strong> ici pour indiquer ce que tu as sécurisé.<br/>
+        Les % affichés = argent <strong>réellement mis de côté</strong>. Au départ c'est 0%, c'est normal.
+      </p>
+    </div>
+    <div class="card" style="background:#FAEEDA;border-color:#EF9F27">
+      <div style="font-size:13px;color:#854F0B">Les objectifs marqués <strong>Critique</strong> s'ajoutent automatiquement aux Scénarios.</div>
+    </div>
+    ${rows}
+    <div class="card">
+      <div class="card-title">+ Ajouter un objectif</div>
+      <div class="form-grid">
+        <div class="form-field"><label>Nom</label><input type="text" id="oNom"></div>
+        <div class="form-field"><label>Cible €</label><input type="number" id="oCible"></div>
+        <div class="form-field"><label>Déjà sécurisé €</label><input type="number" id="oFin" value="0"></div>
+        <div class="form-field"><label>Deadline</label><input type="month" id="oDead"></div>
+        <div class="form-field"><label>Couleur</label><input type="color" id="oCouleur" value="#378ADD" style="height:32px;padding:2px"></div>
+        <div class="form-field"><label>Note</label><input type="text" id="oNote"></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <label style="font-size:13px;color:#888780;display:flex;align-items:center;gap:4px">
+          <input type="checkbox" id="oCritique" style="accent-color:#D4537E"> Critique
+        </label>
+        <button class="btn btn-success" onclick="addObj()">Créer</button>
+      </div>
+    </div>
+  `;
+}
+
+function updateObj(id,field,val){objectifs=objectifs.map(o=>o.id===id?{...o,[field]:val}:o);saveAll()}
+function addFinance(id,sign){const v=parseFloat(document.getElementById('inp-'+id).value);if(!v||v<=0)return;objectifs=objectifs.map(o=>o.id===id?{...o,finance:Math.max(0,o.finance+sign*v)}:o);saveAll();renderObjectifs();renderMetrics();document.getElementById('inp-'+id).value=''}
+function updateCible(id){const v=parseFloat(document.getElementById('cible-'+id).value);if(!v||v<=0)return;objectifs=objectifs.map(o=>o.id===id?{...o,cible:v}:o);saveAll();renderObjectifs()}
+function toggleCritique(id){objectifs=objectifs.map(o=>o.id===id?{...o,critique:!o.critique}:o);saveAll();renderObjectifs();renderMetrics()}
+function removeObj(id){if(!confirm('Supprimer ?'))return;objectifs=objectifs.filter(o=>o.id!==id);scenarioActif=scenarioActif.filter(x=>x!==id);saveAll();renderObjectifs();renderMetrics()}
+function addObj(){const nom=document.getElementById('oNom').value;const cible=parseFloat(document.getElementById('oCible').value);if(!nom||!cible){alert('Nom et cible requis');return}const maxP=objectifs.reduce((m,o)=>Math.max(m,o.priorite),0);objectifs.push({id:'obj'+Date.now(),nom,cible,finance:parseFloat(document.getElementById('oFin').value)||0,deadline:document.getElementById('oDead').value||'',couleur:document.getElementById('oCouleur').value,note:document.getElementById('oNote').value||'',priorite:maxP+1,critique:document.getElementById('oCritique').checked});saveAll();renderObjectifs();renderMetrics()}
+
+function renderScenarios(){
+  const c=calculs();
+  const checkboxes=objectifs.sort((a,b)=>a.priorite-b.priorite).map(o=>{
+    const checked=scenarioActif.includes(o.id);
+    const restant=o.cible-o.finance;
+    return`<label class="checkbox-item ${checked?'checked':''}">
+      <input type="checkbox" ${checked?'checked':''} onchange="toggleScenario('${o.id}')">
+      <div style="flex:1">
+        <div style="font-weight:500">${o.nom}</div>
+        <div style="font-size:11px;color:#888780">Reste : ${fmt(restant)} · ${formatDeadline(o.deadline)}</div>
+      </div>
+    </label>`;
+  }).join('');
+  const itemsActifs=objectifs.filter(o=>scenarioActif.includes(o.id));
+  const totalActif=itemsActifs.reduce((s,o)=>s+Math.max(0,o.cible-o.finance),0);
+  const gapActif=Math.max(0,totalActif-c.cashMobilisable);
+  const maxMois=itemsActifs.length?Math.max(...itemsActifs.map(o=>monthsUntil(o.deadline))):6;
+  const totalParMois=itemsActifs.reduce((s,o)=>s+Math.max(0,o.cible-o.finance)/Math.max(1,monthsUntil(o.deadline)),0);
+  
+  let calendarRows='';
+  for(let i=0;i<maxMois;i++){
+    const monthYear=new Date(2026,4+i,1);
+    const moisNoms=['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Août','Sept','Oct','Nov','Déc'];
+    const moisStr=`${moisNoms[monthYear.getMonth()]} ${monthYear.getFullYear()}`;
+    let totalMois=0;
+    const contribs=[];
+    itemsActifs.forEach(o=>{
+      const deadlineDate=new Date(o.deadline+'-01');
+      if(monthYear<=deadlineDate){
+        const mois=monthsUntil(o.deadline);
+        const restant=Math.max(0,o.cible-o.finance);
+        const parMois=restant/Math.max(1,mois);
+        totalMois+=parMois;
+        contribs.push({nom:o.nom,val:parMois,couleur:o.couleur});
+      }
+    });
+    let pills=contribs.map(cb=>`<span class="badge" style="background:${cb.couleur}15;color:${cb.couleur};margin-right:4px">${cb.nom.slice(0,12)} ${fmt(cb.val)}</span>`).join('');
+    calendarRows+=`<div class="table-row" style="grid-template-columns:1fr 1fr 3fr">
+      <span style="font-weight:500">${moisStr}</span>
+      <span style="color:#185FA5;font-weight:500">${fmt(totalMois)}</span>
+      <span style="font-size:11px">${pills||'<span style="color:#888780">—</span>'}</span>
+    </div>`;
+  }
+  
+  document.getElementById('tab-scenarios').innerHTML=`
+    <div class="card">
+      <div class="card-title">Composer ton scénario</div>
+      <p style="font-size:12px;color:#888780;margin-bottom:10px">Coche les objectifs à poursuivre. Les calculs se mettent à jour partout.</p>
+      ${checkboxes}
+    </div>
+    <div class="card">
+      <div class="gap-explain">
+        <strong>Explication Gap :</strong> montant manquant aujourd'hui pour payer les objectifs cochés.<br/>
+        <em>Besoin total</em> (${fmt(totalActif)}) <strong>−</strong> <em>Cash mobilisable</em> (${fmt(c.cashMobilisable)}) <strong>=</strong> <strong>${fmt(gapActif)}</strong>
+      </div>
+      <div class="card-title">Plan global</div>
+      ${totalParMois>0?`<div class="alert ${c.epargneReelle>=totalParMois?'info':'warn'}"><strong>Virement :</strong> ${fmt(totalParMois)} le 5 de chaque mois vers tes Pots Yuh.</div>`:''}
+      <div class="row"><span style="color:#888780">Besoin total</span><strong>${fmt(totalActif)}</strong></div>
+      <div class="row"><span style="color:#888780">Cash mobilisable</span><strong>${fmt(c.cashMobilisable)}</strong></div>
+      <div class="row"><span style="color:#888780">Gap</span><strong style="color:${gapActif>0?'#A32D2D':'#0F6E56'}">${fmt(gapActif)}</strong></div>
+      <div class="row"><span style="color:#888780">Total/mois</span><strong style="color:#185FA5">${fmt(totalParMois)}</strong></div>
+      <div class="row"><span style="color:#888780">Épargne réelle</span><strong style="color:#0F6E56">${fmt(c.epargneReelle)}/mois</strong></div>
+      <div class="row"><span style="color:#888780">Marge</span><strong style="color:${c.epargneReelle>=totalParMois?'#0F6E56':'#A32D2D'}">${c.epargneReelle>=totalParMois?'+':''}${fmt(c.epargneReelle-totalParMois)}/mois</strong></div>
+    </div>
+    ${itemsActifs.length?`<div class="card">
+      <div class="card-title">Calendrier intelligent</div>
+      <p style="font-size:12px;color:#888780;margin-bottom:12px">Allocation parallèle par deadline.</p>
+      <div class="table-head" style="grid-template-columns:1fr 1fr 3fr"><span>Mois</span><span>Total</span><span>Répartition</span></div>
+      ${calendarRows}
+    </div>`:''}
+  `;
+}
+function toggleScenario(id){if(scenarioActif.includes(id)){scenarioActif=scenarioActif.filter(x=>x!==id)}else{scenarioActif=[...scenarioActif,id]}saveAll();renderScenarios();renderMetrics()}
+
+function renderDettes(){
+  const dActifs=dettes.filter(d=>d.statut==='actif').reduce((s,d)=>s+d.montant,0);
+  const dAnciens=dettes.filter(d=>d.statut==='ancien').reduce((s,d)=>s+d.montant,0);
+  let rows=dettes.map(d=>`<div class="table-row" style="grid-template-columns:1.5fr 0.8fr 0.9fr 0.9fr 1.5fr 0.4fr">
+    <input class="inline-edit" value="${d.nom}" onchange="updateDette(${d.id},'nom',this.value)">
+    <input class="inline-edit" type="number" value="${d.montant}" onchange="updateDette(${d.id},'montant',parseFloat(this.value)||0)">
+    <input class="inline-edit" value="${d.depuis}" onchange="updateDette(${d.id},'depuis',this.value)">
+    <select class="inline-edit" onchange="updateDette(${d.id},'statut',this.value)">
+      <option value="actif" ${d.statut==='actif'?'selected':''}>Récent</option>
+      <option value="ancien" ${d.statut==='ancien'?'selected':''}>Ancien</option>
+    </select>
+    <input class="inline-edit" value="${d.note||''}" onchange="updateDette(${d.id},'note',this.value)" placeholder="Note">
+    <span class="delete-icon" onclick="removeDette(${d.id})">×</span>
+  </div>`).join('');
+  document.getElementById('tab-dettes').innerHTML=`
+    <div class="card">
+      <div class="card-title">Dettes récupérables</div>
+      <div class="table-head" style="grid-template-columns:1.5fr 0.8fr 0.9fr 0.9fr 1.5fr 0.4fr">
+        <span>Personne</span><span>Montant</span><span>Depuis</span><span>Statut</span><span>Note</span><span></span>
+      </div>${rows}
+      <details><summary>+ Ajouter</summary>
+        <div class="add-form">
+          <div class="form-grid">
+            <div class="form-field"><label>Personne</label><input type="text" id="dNom"></div>
+            <div class="form-field"><label>Montant</label><input type="number" id="dMontant"></div>
+            <div class="form-field"><label>Depuis</label><input type="text" id="dDepuis"></div>
+            <div class="form-field"><label>Statut</label><select id="dStatut"><option value="actif">Récent</option><option value="ancien">Ancien</option></select></div>
+            <div class="form-field" style="grid-column:span 2"><label>Note</label><input type="text" id="dNote"></div>
+          </div>
+          <button class="btn btn-success" onclick="addDette()">Ajouter</button>
+        </div>
+      </details>
+      <div style="margin-top:14px;padding-top:12px;border-top:0.5px solid rgba(0,0,0,0.1)">
+        <div class="row"><span>Récentes</span><strong style="color:#0F6E56">${fmt(dActifs)}</strong></div>
+        <div class="row"><span>Anciennes</span><strong style="color:#A32D2D">${fmt(dAnciens)}</strong></div>
+        <div class="row" style="font-weight:500"><span>Total</span><strong>${fmt(dActifs+dAnciens)}</strong></div>
+      </div>
+    </div>
+  `;
+}
+function updateDette(id,field,val){dettes=dettes.map(d=>d.id===id?{...d,[field]:val}:d);saveAll();renderMetrics()}
+function addDette(){const nom=document.getElementById('dNom').value;const m=parseFloat(document.getElementById('dMontant').value);if(!nom||!m){alert('Nom et montant requis');return}dettes.push({id:Date.now(),nom,montant:m,depuis:document.getElementById('dDepuis').value,statut:document.getElementById('dStatut').value,note:document.getElementById('dNote').value});saveAll();renderDettes();renderMetrics()}
+function removeDette(id){if(!confirm('Supprimer ?'))return;dettes=dettes.filter(d=>d.id!==id);saveAll();renderDettes();renderMetrics()}
+
+function renderDetail(){
+  const s=snapshots[snapshots.length-1];
+  document.getElementById('tab-detail').innerHTML=`
+    <div class="card">
+      <div class="card-title">Ajouter un relevé</div>
+      <div class="add-form">
+        <div class="form-grid">
+          <div class="form-field"><label>Date</label><input type="date" id="sDate" value="${new Date().toISOString().split('T')[0]}"></div>
+          <div class="form-field"><label>Liquide</label><input type="number" id="sLiquide"></div>
+          <div class="form-field"><label>Livret A</label><input type="number" id="sLivretA" value="${s.livretA}"></div>
+          <div class="form-field"><label>Or</label><input type="number" id="sOr" value="${Math.round(calcOrTotal())}"></div>
+          <div class="form-field"><label>Dettes</label><input type="number" id="sDettes"></div>
+          <div class="form-field"><label>Crédit</label><input type="number" id="sCredit" value="${s.credit}"></div>
+        </div>
+        <button class="btn btn-success" onclick="addSnapshot()">Enregistrer</button>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div class="card-title" style="margin-bottom:0">Historique (${snapshots.length} relevés)</div>
+        <button class="toolbar-btn" onclick="toggleHistory()">${showHistory?'▼ Masquer':'▶ Afficher'}</button>
+      </div>
+      ${showHistory?`<div class="table-head" style="grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr 0.4fr">
+        <span>Date</span><span>Liquide</span><span>Livret A</span><span>Or</span><span>Crédit</span><span>Net</span><span></span>
+      </div>
+      ${[...snapshots].reverse().map(s=>`<div class="table-row" style="grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr 0.4fr">
+        <span style="color:#888780;font-size:12px">${s.date}</span>
+        <span>${fmt(s.liquide)}</span>
+        <span>${fmt(s.livretA)}</span>
+        <span style="color:#854F0B">${fmt(s.or)}</span>
+        <span style="color:#A32D2D">-${fmt(s.credit)}</span>
+        <span style="font-weight:500">${fmt(s.net)}</span>
+        <span class="delete-icon" onclick="removeSnapshot(${s.id})">×</span>
+      </div>`).join('')}`:'<p style="color:#888780;padding:8px 0;font-size:12px">Cliquer pour afficher</p>'}
+    </div>
+  `;
+}
+function toggleHistory(){showHistory=!showHistory;saveAll();renderDetail()}
+function addSnapshot(){const date=document.getElementById('sDate').value;const liquide=parseFloat(document.getElementById('sLiquide').value)||0;const livretA=parseFloat(document.getElementById('sLivretA').value)||0;const or=parseFloat(document.getElementById('sOr').value)||0;let dettesVal=parseFloat(document.getElementById('sDettes').value);if(isNaN(dettesVal))dettesVal=dettes.reduce((s,d)=>s+d.montant,0);const credit=parseFloat(document.getElementById('sCredit').value)||0;if(!date){alert('Date requise');return}const net=liquide+livretA+or+dettesVal-credit;snapshots=[...snapshots,{id:Date.now(),date,liquide,livretA,or,dettes:dettesVal,credit,net}].sort((a,b)=>a.date.localeCompare(b.date));saveAll();renderMetrics();renderDetail()}
+function removeSnapshot(id){if(!confirm('Supprimer ?'))return;if(snapshots.length<=1){alert('Impossible');return}snapshots=snapshots.filter(s=>s.id!==id);saveAll();renderMetrics();renderDetail()}
+
+renderMetrics();
+renderApercu();
+</script>
+</body>
+</html>
