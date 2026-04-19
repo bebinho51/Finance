@@ -109,6 +109,7 @@ summary:hover{color:#2C2C2A}
   <button class="tab" onclick="show('scenarios',this)">Scénarios</button>
   <button class="tab" onclick="show('dettes',this)">Dettes</button>
   <button class="tab" onclick="show('detail',this)">Détail finance perso</button>
+  <button class="tab" style="background:#E6F1FB;color:#0C447C;border-color:#85B7EB" onclick="show('sync',this)">🔄 Sync</button>
 </div>
 
 <div id="tab-apercu"></div>
@@ -119,6 +120,7 @@ summary:hover{color:#2C2C2A}
 <div id="tab-scenarios" style="display:none"></div>
 <div id="tab-dettes" style="display:none"></div>
 <div id="tab-detail" style="display:none"></div>
+<div id="tab-sync" style="display:none"></div>
 
 <script>
 const fmt=n=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);
@@ -327,7 +329,7 @@ function renderMetrics(){
 }
 
 function renderTab(id){
-  const fns={apercu:renderApercu,patrimoine:renderPatrimoine,or:renderOr,depenses:renderDepenses,objectifs:renderObjectifs,scenarios:renderScenarios,dettes:renderDettes,detail:renderDetail};
+  const fns={apercu:renderApercu,patrimoine:renderPatrimoine,or:renderOr,depenses:renderDepenses,objectifs:renderObjectifs,scenarios:renderScenarios,dettes:renderDettes,detail:renderDetail,sync:renderSync};
   if(fns[id])fns[id]();
 }
 
@@ -880,7 +882,119 @@ function updateDette(id,field,val){dettes=dettes.map(d=>d.id===id?{...d,[field]:
 function addDette(){const nom=document.getElementById('dNom').value;const m=parseFloat(document.getElementById('dMontant').value);if(!nom||!m){alert('Nom et montant requis');return}dettes.push({id:Date.now(),nom,montant:m,depuis:document.getElementById('dDepuis').value,statut:document.getElementById('dStatut').value,note:document.getElementById('dNote').value});saveAll();renderDettes();renderMetrics()}
 function removeDette(id){if(!confirm('Supprimer ?'))return;dettes=dettes.filter(d=>d.id!==id);saveAll();renderDettes();renderMetrics()}
 
-function renderDetail(){
+function renderSync(){
+  const lastExport=localStorage.getItem('ahmed8-lastexport');
+  const lastImport=localStorage.getItem('ahmed8-lastimport');
+  document.getElementById('tab-sync').innerHTML=`
+    <div class="card" style="background:linear-gradient(135deg,#E6F1FB,#F0F7FF);border-color:#85B7EB">
+      <h2 style="font-size:17px;font-weight:500;color:#0C447C;margin-bottom:6px">🔄 Synchronisation Mac ↔ iPhone</h2>
+      <p style="font-size:13px;color:#0C447C;line-height:1.7">
+        Tes données sont sauvegardées <strong>séparément sur chaque appareil</strong>. Pour qu'iPhone et Mac voient les mêmes données, tu dois exporter depuis un appareil et importer sur l'autre.<br/>
+        <strong>Temps : 30 secondes.</strong>
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📱 → 💻 Tu veux voir sur Mac ce que t'as fait sur iPhone</div>
+      <div style="background:#F5F5F0;border-radius:8px;padding:14px;margin-bottom:12px;font-size:13px;line-height:1.9;color:#2C2C2A">
+        <strong>Sur iPhone (Safari) :</strong><br/>
+        1. Ouvre <code style="background:#E0E0E0;padding:1px 5px;border-radius:3px">bebinho51.github.io/Finance</code><br/>
+        2. Va dans cet onglet <strong>🔄 Sync</strong><br/>
+        3. Appuie sur <strong>"⬇ Exporter mes données"</strong><br/>
+        4. Un fichier JSON se télécharge dans Fichiers → Téléchargements<br/>
+        5. Ouvre <strong>WhatsApp</strong> ou <strong>iCloud Drive</strong> et envoie-toi ce fichier<br/><br/>
+        <strong>Sur Mac (Chrome) :</strong><br/>
+        6. Récupère le fichier JSON (WhatsApp Web ou iCloud Drive)<br/>
+        7. Reviens ici dans <strong>🔄 Sync</strong><br/>
+        8. Clique <strong>"⬆ Importer des données"</strong><br/>
+        9. Sélectionne le fichier JSON → tes données iPhone apparaissent sur Mac ✅
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💻 → 📱 Tu veux voir sur iPhone ce que t'as fait sur Mac</div>
+      <p style="font-size:12px;color:#888780;margin-bottom:12px">C'est le cas le plus fréquent — tu fais ta mise à jour mensuelle sur Mac, tu veux la voir sur iPhone.</p>
+      <div style="background:#F5F5F0;border-radius:8px;padding:14px;margin-bottom:12px;font-size:13px;line-height:1.9;color:#2C2C2A">
+        <strong>Sur Mac (Chrome) :</strong><br/>
+        1. Clique <strong>"⬇ Exporter mes données"</strong> ci-dessous<br/>
+        2. Un fichier <code style="background:#E0E0E0;padding:1px 5px;border-radius:3px">finances-ahmed-YYYY-MM-DD.json</code> se télécharge<br/>
+        3. Ouvre <strong>AirDrop</strong> (le plus rapide) ou dépose sur <strong>iCloud Drive</strong><br/>
+        4. Envoie le fichier vers iPhone<br/><br/>
+        <strong>Sur iPhone (Safari) :</strong><br/>
+        5. Ouvre <code style="background:#E0E0E0;padding:1px 5px;border-radius:3px">bebinho51.github.io/Finance</code><br/>
+        6. Va dans <strong>🔄 Sync</strong><br/>
+        7. Appuie <strong>"⬆ Importer des données"</strong><br/>
+        8. Sélectionne le fichier JSON depuis Fichiers → tes données Mac apparaissent ✅
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💾 Sauvegarde de sécurité</div>
+      <p style="font-size:13px;color:#5F5E5A;margin-bottom:14px;line-height:1.6">
+        Fais une sauvegarde une fois par mois après ta mise à jour. Si tu vides le cache de ton navigateur ou changes d'appareil, tu pourras tout récupérer depuis ce fichier.<br/>
+        <strong>Conseil :</strong> garde le fichier dans un dossier <strong>iCloud Drive → "Sauvegardes Finances"</strong> avec la date dans le nom.
+      </p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <button class="btn btn-success" onclick="exportDataSync()" style="font-size:14px;padding:10px 20px">⬇ Exporter mes données</button>
+        <button class="btn" onclick="document.getElementById('importInputSync').click()" style="font-size:14px;padding:10px 20px;background:#185FA5">⬆ Importer des données</button>
+        <input type="file" id="importInputSync" accept=".json" style="display:none" onchange="importDataSync(this)">
+      </div>
+      <div style="margin-top:14px;font-size:12px;color:#888780;line-height:1.7">
+        ${lastExport?`✅ Dernier export : <strong>${new Date(lastExport).toLocaleString('fr-FR')}</strong>`:'⚠️ Aucun export effectué sur cet appareil'}
+        <br/>
+        ${lastImport?`✅ Dernier import : <strong>${new Date(lastImport).toLocaleString('fr-FR')}</strong>`:'ℹ️ Aucun import effectué sur cet appareil'}
+      </div>
+    </div>
+
+    <div class="card" style="background:#FAEEDA;border-color:#EF9F27">
+      <div class="card-title" style="color:#854F0B">⚠️ Règle importante</div>
+      <p style="font-size:13px;color:#854F0B;line-height:1.7">
+        L'import <strong>remplace toutes les données</strong> de l'appareil sur lequel tu importes.<br/>
+        Si tu as fait des modifs sur les 2 appareils en même temps, <strong>l'import écrase l'un des deux</strong>.<br/>
+        <strong>Bonne pratique :</strong> utilise <strong>toujours Mac comme appareil principal</strong> pour les mises à jour. iPhone = lecture seule. Comme ça tu n'as jamais de conflit.
+      </p>
+    </div>
+  `;
+}
+
+function exportDataSync(){
+  const data={snapshots,objectifs,dettes,pieces,coursOr,scenarioActif,showHistory,spendeeData,exportDate:new Date().toISOString(),version:'v8'};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='finances-ahmed-'+new Date().toISOString().split('T')[0]+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  localStorage.setItem('ahmed8-lastexport',new Date().toISOString());
+  renderSync();
+}
+
+function importDataSync(input){
+  const file=input.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      const d=JSON.parse(e.target.result);
+      if(!confirm('⚠️ Cela remplacera TOUTES tes données actuelles sur cet appareil.\n\nExport du : '+(d.exportDate?new Date(d.exportDate).toLocaleString('fr-FR'):'date inconnue')+'\n\nContinuer ?'))return;
+      if(d.snapshots)snapshots=d.snapshots;
+      if(d.objectifs)objectifs=d.objectifs;
+      if(d.dettes)dettes=d.dettes;
+      if(d.pieces)pieces=d.pieces;
+      if(d.coursOr)coursOr=d.coursOr;
+      if(d.scenarioActif)scenarioActif=d.scenarioActif;
+      if(d.spendeeData)spendeeData=d.spendeeData;
+      saveAll();
+      localStorage.setItem('ahmed8-lastimport',new Date().toISOString());
+      renderMetrics();
+      renderSync();
+      alert('✅ Données importées avec succès !');
+    }catch(err){alert('❌ Erreur : fichier invalide ou corrompu')}
+  };
+  reader.readAsText(file);
+  input.value='';
+}
   const s=snapshots[snapshots.length-1];
   document.getElementById('tab-detail').innerHTML=`
     <div class="card">
