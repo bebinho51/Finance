@@ -98,7 +98,7 @@ summary:hover{color:#2C2C2A}
 <body>
 
 <h1>Tableau de bord financier</h1>
-<div class="sub">Ahmed Meddahi · v9 · Cours or <span id="coursInfo"></span></div>
+<div class="sub">Ahmed Meddahi · v10 · Cours or <span id="coursInfo"></span></div>
 
 <div class="grid4" id="metrics"></div>
 
@@ -146,27 +146,29 @@ const DEFAULT_SNAPSHOTS=[
 {id:16,date:"2025-11-11",liquide:12700,livretA:4900,or:4080,dettes:7862,credit:5000,net:20462},
 {id:17,date:"2025-12-27",liquide:12267,livretA:4500,or:9717,dettes:6005,credit:5000,net:24489},
 {id:18,date:"2026-02-04",liquide:5650,livretA:4600,or:9365,dettes:5660,credit:5000,net:20275},
-{id:19,date:"2026-04-17",liquide:8940,livretA:1620,or:9691,dettes:5554,credit:4666,net:21139}
+{id:19,date:"2026-04-17",liquide:8940,livretA:1620,or:9691,dettes:5554,credit:4666,net:21139},
+{id:20,date:"2026-05-05",liquide:5400,livretA:460,or:9691,dettes:4876,credit:4666,net:15761,note:"Plum 1400€ inclus dans liquide. Or parure 3191€ (baisse cours)"}
 ];
 
 const DEFAULT_OBJECTIFS=[
-{id:"mariage",nom:"Mariage",cible:12000,finance:0,couleur:"#D4537E",deadline:"2026-10",priorite:1,critique:true,note:""},
-{id:"bague",nom:"Bague",cible:2000,finance:0,couleur:"#7F77DD",deadline:"2026-10",priorite:2,critique:true,note:""},
-{id:"dot",nom:"Dot cash",cible:1000,finance:0,couleur:"#BA7517",deadline:"2026-10",priorite:3,critique:true,note:"Parure 4080€ déjà achetée"},
-{id:"impots2025",nom:"Impôts 2025",cible:4000,finance:0,couleur:"#A32D2D",deadline:"2026-12",priorite:4,critique:true,note:"Étalé mai-déc 2026 (500€/mois)"},
-{id:"appartMaman",nom:"Appart maman Algérie",cible:1000,finance:0,couleur:"#D85A30",deadline:"2027-06",priorite:5,critique:false,note:"4000€ déjà donnés sur 5000€"},
-{id:"voyageNoces",nom:"Voyage de noces",cible:5000,finance:0,couleur:"#378ADD",deadline:"2027-04",priorite:6,critique:false,note:""},
-{id:"ameublement",nom:"Ameublement",cible:8000,finance:0,couleur:"#1D9E75",deadline:"2026-12",priorite:7,critique:false,note:""},
-{id:"fba",nom:"Amazon FBA",cible:15000,finance:0,couleur:"#534AB7",deadline:"2027-04",priorite:8,critique:false,note:""}
+{id:"mariage",nom:"Mariage",cible:12000,finance:1300,couleur:"#D4537E",deadline:"2027-03",priorite:1,critique:true,note:"Mars 2027 (négocié)"},
+{id:"bague",nom:"Bague",cible:2000,finance:700,couleur:"#7F77DD",deadline:"2027-03",priorite:2,critique:true,note:""},
+{id:"dot",nom:"Dot cash",cible:1000,finance:400,couleur:"#BA7517",deadline:"2027-03",priorite:3,critique:true,note:"Parure 4080€ déjà achetée (3191€ valeur actuelle)"},
+{id:"impots2025",nom:"Impôts 2025",cible:3500,finance:3000,couleur:"#A32D2D",deadline:"2026-12",priorite:4,critique:true,note:"Quasi bouclé"},
+{id:"impots2026",nom:"Impôts 2026",cible:3000,finance:200,couleur:"#791F1F",deadline:"2027-09",priorite:5,critique:true,note:""},
+{id:"appartMaman",nom:"Appart maman Algérie",cible:1000,finance:0,couleur:"#D85A30",deadline:"2027-06",priorite:6,critique:false,note:"4000€ déjà donnés sur 5000€"},
+{id:"voyageNoces",nom:"Voyage de noces",cible:5000,finance:0,couleur:"#378ADD",deadline:"2027-04",priorite:7,critique:false,note:"Décalable Q4 2027"},
+{id:"ameublement",nom:"Ameublement",cible:8000,finance:0,couleur:"#1D9E75",deadline:"2027-06",priorite:8,critique:false,note:"Étalable 2027-2028"},
+{id:"fba",nom:"Amazon FBA",cible:15000,finance:0,couleur:"#534AB7",deadline:"2027-06",priorite:9,critique:false,note:"Lancement Q4 2027 Black Friday"}
 ];
 
 const DEFAULT_DETTES=[
-{id:1,nom:"Titi",montant:890,depuis:"2024-05",statut:"actif",note:""},
+{id:1,nom:"Titi",montant:412,depuis:"2024-05",statut:"actif",note:"Solde après ajustements (200+130-472)"},
 {id:2,nom:"Abed",montant:230,depuis:"2026-02",statut:"actif",note:"30€ + billets maman"},
 {id:3,nom:"Fethi frère",montant:500,depuis:"2025-08",statut:"actif",note:""},
-{id:4,nom:"Linda",montant:200,depuis:"2025-12",statut:"actif",note:"iPhone"},
-{id:5,nom:"Plan Mel - Yassine",montant:1200,depuis:"2024-07",statut:"ancien",note:"Bloqué 21+ mois"},
-{id:6,nom:"Plan Mel - Lamia",montant:2534,depuis:"2024-07",statut:"ancien",note:"Bloqué 21+ mois"}
+{id:4,nom:"Linda",montant:200,depuis:"2025-12",statut:"actif",note:"iPhone (200€ février 2026)"},
+{id:5,nom:"Plan Mel - Yassine",montant:1200,depuis:"2024-07",statut:"ancien",note:"Bloqué 21+ mois - deadline 2 semaines"},
+{id:6,nom:"Plan Mel - Lamia",montant:2334,depuis:"2024-07",statut:"ancien",note:"Bloqué - 200€ reçus 18/07 - deadline 2 semaines"}
 ];
 
 const DEFAULT_OR={
@@ -211,36 +213,36 @@ const DEFAULT_SPENDEE={
 "2026-01":{rev:4254,dep:5010,cat:{Voyage:1669,Dons:866,Transport:869,Voiture:518,Maison:526,Autres:253,Cadeaux:170,Factures:124,Divertissement:87,Famille:18,Santé:42}},
 "2026-02":{rev:4162,dep:1762,cat:{Maison:567,Épicerie:187,Voiture:245,"Dette CE":178,Transport:85,Factures:78,Dons:50,Éducation:65,Nourriture:25,Sport:25,Achats:13}},
 "2026-03":{rev:4450,dep:4834,cat:{Dons:2580,Maison:558,Voiture:369,Épicerie:329,Impôt:300,Cadeaux:260,Sport:90,"Dette CE":85,Transport:79,Factures:58,Nourriture:31,Beauté:30,Autres:22,Achats:21,Divertissement:13,"Frais bancaires":9}},
-"2026-04":{rev:1240,dep:2294,cat:{Maison:633,Travail:586,Impôt:300,Voiture:248,Épicerie:176,Autres:130,Factures:107,"Dette CE":85,Nourriture:20,"Frais bancaires":9}}
+"2026-04":{rev:4490,dep:3481,cat:{Maison:632,Voiture:593,Travail:586,Autres:427,Épicerie:348,Impôt:300,Santé:202,Factures:107,"Dette CE":85,Transport:80,Nourriture:53,Cadeaux:35,"Frais bancaires":9}}
 };
 
 function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):JSON.parse(JSON.stringify(d))}catch(e){return JSON.parse(JSON.stringify(d))}}
 function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
 
-let snapshots=load('ahmed9-snaps',DEFAULT_SNAPSHOTS);
-let objectifs=load('ahmed9-obj',DEFAULT_OBJECTIFS);
-let dettes=load('ahmed9-dettes',DEFAULT_DETTES);
-let pieces=load('ahmed9-or',DEFAULT_OR);
-let coursOr=load('ahmed9-cours',DEFAULT_COURS_OR);
-let scenarioActif=load('ahmed9-scenario',["mariage","bague","dot","impots2025"]);
-let showHistory=load('ahmed9-showhist',false);
-let spendeeData=load('ahmed9-spendee',DEFAULT_SPENDEE);
-let selectedMonth=load('ahmed9-selmonth','2026-03');
+let snapshots=load('ahmed10-snaps',DEFAULT_SNAPSHOTS);
+let objectifs=load('ahmed10-obj',DEFAULT_OBJECTIFS);
+let dettes=load('ahmed10-dettes',DEFAULT_DETTES);
+let pieces=load('ahmed10-or',DEFAULT_OR);
+let coursOr=load('ahmed10-cours',DEFAULT_COURS_OR);
+let scenarioActif=load('ahmed10-scenario',["mariage","bague","dot","impots2025"]);
+let showHistory=load('ahmed10-showhist',false);
+let spendeeData=load('ahmed10-spendee',DEFAULT_SPENDEE);
+let selectedMonth=load('ahmed10-selmonth','2026-03');
 
 function saveAll(){
-  save('ahmed9-snaps',snapshots);
-  save('ahmed9-obj',objectifs);
-  save('ahmed9-dettes',dettes);
-  save('ahmed9-or',pieces);
-  save('ahmed9-cours',coursOr);
-  save('ahmed9-scenario',scenarioActif);
-  save('ahmed9-showhist',showHistory);
-  save('ahmed9-spendee',spendeeData);
-  save('ahmed9-selmonth',selectedMonth);
+  save('ahmed10-snaps',snapshots);
+  save('ahmed10-obj',objectifs);
+  save('ahmed10-dettes',dettes);
+  save('ahmed10-or',pieces);
+  save('ahmed10-cours',coursOr);
+  save('ahmed10-scenario',scenarioActif);
+  save('ahmed10-showhist',showHistory);
+  save('ahmed10-spendee',spendeeData);
+  save('ahmed10-selmonth',selectedMonth);
 }
 
 function exportData(){
-  const data={snapshots,objectifs,dettes,pieces,coursOr,scenarioActif,showHistory,spendeeData,exportDate:new Date().toISOString(),version:'v9'};
+  const data={snapshots,objectifs,dettes,pieces,coursOr,scenarioActif,showHistory,spendeeData,exportDate:new Date().toISOString(),version:'v10'};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
@@ -926,8 +928,8 @@ function addSnapshot(){const date=document.getElementById('sDate').value;const l
 function removeSnapshot(id){if(!confirm('Supprimer ?'))return;if(snapshots.length<=1){alert('Impossible');return}snapshots=snapshots.filter(s=>s.id!==id);saveAll();renderMetrics();renderDetail()}
 
 function renderSync(){
-  const lastExport=localStorage.getItem('ahmed9-lastexport');
-  const lastImport=localStorage.getItem('ahmed9-lastimport');
+  const lastExport=localStorage.getItem('ahmed10-lastexport');
+  const lastImport=localStorage.getItem('ahmed10-lastimport');
   document.getElementById('tab-sync').innerHTML=`
     <div class="card" style="background:linear-gradient(135deg,#E6F1FB,#F0F7FF);border-color:#85B7EB">
       <h2 style="font-size:17px;font-weight:500;color:#0C447C;margin-bottom:6px">🔄 Synchronisation Mac et iPhone</h2>
@@ -989,7 +991,7 @@ function renderSync(){
 }
 
 function exportDataSync(){
-  const data={snapshots,objectifs,dettes,pieces,coursOr,scenarioActif,showHistory,spendeeData,exportDate:new Date().toISOString(),version:'v9'};
+  const data={snapshots,objectifs,dettes,pieces,coursOr,scenarioActif,showHistory,spendeeData,exportDate:new Date().toISOString(),version:'v10'};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
@@ -997,7 +999,7 @@ function exportDataSync(){
   a.download='finances-ahmed-'+new Date().toISOString().split('T')[0]+'.json';
   a.click();
   URL.revokeObjectURL(url);
-  localStorage.setItem('ahmed9-lastexport',new Date().toISOString());
+  localStorage.setItem('ahmed10-lastexport',new Date().toISOString());
   renderSync();
 }
 
@@ -1017,7 +1019,7 @@ function importDataSync(input){
       if(d.scenarioActif)scenarioActif=d.scenarioActif;
       if(d.spendeeData)spendeeData=d.spendeeData;
       saveAll();
-      localStorage.setItem('ahmed9-lastimport',new Date().toISOString());
+      localStorage.setItem('ahmed10-lastimport',new Date().toISOString());
       renderMetrics();
       renderSync();
       alert('Données importées avec succès');
